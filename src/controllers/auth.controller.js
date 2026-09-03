@@ -19,14 +19,16 @@ export const signup = async (req, res, next) => {
 
     const existedUser = await User.findOne({email})
     
-        if(existedUser) {
-            return res.status(400).json({message: "Email already exists"});
-        }
+    if(existedUser) {
+        return res.status(400).json({message: "Email already exists"});
+    }
+
+    const hashedPassword = await User.hashPassword(password);
 
     const newUser = await User.create({
       fullName,
       email,
-      password,
+      password: hashedPassword,
     });
 
     const createdUser = await User.findById(newUser._id).select("-password")
@@ -56,7 +58,7 @@ export const signup = async (req, res, next) => {
 
 
 // Log in an existing user
-export const login = async (req, res, next) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -65,21 +67,35 @@ export const login = async (req, res, next) => {
     }
 
     const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
-    if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: "That email and password don't match." });
+
+    if (!user) {
+      return res.status(404).json({message: "User does not exist"});
     }
 
-    res.json({
-      token: generateToken(user._id),
-      user: user.toSafeObject(),
-    });
-  } catch (err) {
-    next(err);
-  }
-};
 
-// @desc  Get the logged-in user's profile
-// @route GET /api/auth/me
-export const getMe = async (req, res) => {
-  res.json({ user: req.user.toSafeObject() });
+    const isPasswordValid = await user.comparePassword(password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({message: "Invalid password"});
+    }
+
+    const token = await user.generateAuthToken();
+    
+    const loggedInUser = await User.findById(user._id).select("-password")
+    
+    const options = {
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: true
+    }
+    
+    res
+    .status(201)
+    .cookie("token", token, options)
+    .json({message: "User loged in successfully", token, loggedInUser})
+
+  } catch (error) {
+        console.log("Error in login controller: ", error);
+        res.status(500).json({message: "Internal server error"})
+    }
 };
