@@ -35,26 +35,12 @@ userSchema.methods.generateAuthToken = function() {
 }
 
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
+userSchema.statics.hashPassword = async function(password) {
+  return await bcrypt.hash(password, 10);
+}
 
 userSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
-};
-
-userSchema.methods.toSafeObject = function () {
-  return {
-    id: this._id,
-    name: this.name,
-    email: this.email,
-    avatarColor: this.avatarColor,
-    plan: this.plan,
-    createdAt: this.createdAt,
-  };
 };
 
 export const User = mongoose.model("User", userSchema);
