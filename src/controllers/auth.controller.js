@@ -1,7 +1,7 @@
 import { User } from "../models/user.model.js";
 
 // Register a new user
-export const signup = async (req, res, next) => {
+export const signup = async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
 
@@ -33,25 +33,25 @@ export const signup = async (req, res, next) => {
 
     const createdUser = await User.findById(newUser._id).select("-password")
 
-        const options = {
-            maxAge: 30 * 24 * 60 * 60 * 1000,
-            httpOnly: true,
-            secure: true
-        }
+    const options = {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: true
+    }
 
     if(createdUser) {
       const token = newUser.generateAuthToken();
 
-    res
-      .status(201)
-      .cookie("token", token, options)
-      .json({message: "User Registered Successfully",token, createdUser});
+      res
+       .status(201)
+       .cookie("token", token, options)
+       .json({message: "User Registered Successfully",token, createdUser});
       } else {
           return res.status(500).json({message: "Something went wrong while registering the user"})
-      }
+       }
   } catch (error) {
     console.log("Error in signup controller: ", error.message);
-        res.status(500).json({message: "Internal server error123"}) 
+    res.status(500).json({message: "Internal server error123"}) 
   }
 };
 
