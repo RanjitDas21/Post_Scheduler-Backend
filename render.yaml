@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: loop-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: CLIENT_URL
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: ZERNIO_MODE
+        value: mock
+      - key: ZERNIO_API_KEY
+        sync: false
+      - key: ZERNIO_API_BASE_URL
+        value: https://zernio.com/api/v1
+      - key: ZERNIO_WEBHOOK_SECRET
+        sync: false
+      - key: AI_PROVIDER
+        value: mock
+      - key: AI_API_KEY
+        sync: false
+      - key: AI_TEXT_MODEL
+        value: gpt-4o-mini
+      - key: AI_IMAGE_MODEL
+        value: dall-e-3
