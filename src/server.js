@@ -50,6 +50,12 @@ app.use("/uploads", express.static(path.resolve("uploads"), { maxAge: "1h", fall
 const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false });
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false });
 const aiLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
+
+app.get('/',(req, res) => {
+  res.send('Server is Live!');
+});
+
+
 app.use("/api", globalLimiter);
 app.use("/api/auth", authLimiter);
 app.use("/api/ai/generate", aiLimiter);
