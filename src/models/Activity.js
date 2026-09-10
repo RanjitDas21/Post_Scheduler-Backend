@@ -13,12 +13,21 @@ const activitySchema = new mongoose.Schema(
     platforms: [{ type: String }],
     // Provider webhook event id. Sparse unique index makes webhook handling
     // idempotent across restarts and multiple API instances.
-    webhookEventId: { type: String, default: null },
+    webhookEventId: { type: String, default: undefined },
   },
   { timestamps: true }
 );
 
 activitySchema.index({ user: 1, createdAt: -1 });
-activitySchema.index({ webhookEventId: 1 }, { unique: true, sparse: true });
+// activitySchema.index({ webhookEventId: 1 }, { unique: true, sparse: true });
+activitySchema.index(
+  { webhookEventId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      webhookEventId: { $type: "string" }
+    }
+  }
+);
 
 export default mongoose.model("Activity", activitySchema);
