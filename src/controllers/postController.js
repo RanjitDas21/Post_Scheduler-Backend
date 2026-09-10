@@ -8,7 +8,26 @@ import { getAppBaseUrl } from "../utils/appUrl.js";
 
 const allowedPlatforms = new Set(["twitter", "linkedin", "facebook", "instagram"]);
 const platformLabel = (list) => list.join(", ");
-const normalizePlatforms = (platforms) => [...new Set((Array.isArray(platforms) ? platforms : []).map(String).map((p) => p.trim().toLowerCase()))];
+// const normalizePlatforms = (platforms) => [...new Set((Array.isArray(platforms) ? platforms : []).map(String).map((p) => p.trim().toLowerCase()))];
+
+const normalizePlatforms = (platforms) => {
+  const list = Array.isArray(platforms)
+    ? platforms
+    : platforms
+      ? [platforms]
+      : [];
+
+  return [
+    ...new Set(
+      list
+        .map(String)
+        .map((p) => p.trim().toLowerCase())
+        .filter(Boolean)
+    )
+  ];
+};
+
+console.log(normalizePlatforms)
 
 const providerStatusToLocal = (status) => {
   if (status === "published") return "published";
