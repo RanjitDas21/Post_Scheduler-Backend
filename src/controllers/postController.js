@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import fs from "fs/promises";
+// import fs from "fs/promises";
 import Post from "../models/Post.js";
 import Account from "../models/Account.js";
 import Activity from "../models/Activity.js";
@@ -105,9 +105,12 @@ export const createPost = async (req, res, next) => {
     }
     const accounts = platforms.map((p) => accountByPlatform.get(p));
 
-    const mediaUrl = req.file
-      ? `${getAppBaseUrl()}/uploads/${req.file.filename}`
-      : (req.body.mediaUrl || null);
+    // const mediaUrl = req.file
+    //   ? `${getAppBaseUrl()}/uploads/${req.file.filename}`
+    //   : (req.body.mediaUrl || null);
+
+    const mediaUrl = req.file?.path || req.body.mediaUrl || null;
+
     if (mediaUrl && !req.file) {
       try {
         const parsed = new URL(mediaUrl);
@@ -157,7 +160,9 @@ export const createPost = async (req, res, next) => {
       post.status = "failed";
       post.lastError = err.message;
       await post.save();
-      if (req.file) await fs.unlink(req.file.path).catch(() => {});
+
+      // if (req.file) await fs.unlink(req.file.path).catch(() => {});
+
       return res.status(err.status && err.status < 500 ? err.status : 502).json({ message: `Zernio rejected this post: ${err.message}` });
     }
 

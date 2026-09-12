@@ -5,7 +5,7 @@ import morgan from "morgan";
 import helmet from "helmet";
 import compression from "compression";
 import rateLimit from "express-rate-limit";
-import path from "path";
+// import path from "path";
 import crypto from "crypto";
 
 import connectDB from "./config/db.js";
@@ -45,7 +45,7 @@ app.use(compression());
 app.use("/api/webhooks", express.raw({ type: "application/json", limit: "2mb" }), webhookRoutes);
 app.use(express.json({ limit: "10mb" }));
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
-app.use("/uploads", express.static(path.resolve("uploads"), { maxAge: "1h", fallthrough: false }));
+// app.use("/uploads", express.static(path.resolve("uploads"), { maxAge: "1h", fallthrough: false }));
 
 const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false });
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false });
