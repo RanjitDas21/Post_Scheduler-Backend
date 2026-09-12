@@ -95,17 +95,39 @@ export const deleteAccount = async ({ zernioAccountId }) => {
   return true;
 };
 
-export const createPost = async ({ content, mediaUrl, accounts, scheduledAt, timezone, publishNow, requestId }) => {
+export const createPost = async ({ content, mediaUrl, mediaType, accounts, scheduledAt, timezone, publishNow, requestId }) => {
   const platforms = accounts.map((a) => ({ platform: a.platform, accountId: a.zernioAccountId }));
   if (isLive()) {
+    // const body = {
+    //   content,
+    //   platforms,
+    //   ...(mediaUrl ? { mediaUrls: [mediaUrl] } : {}),
+    //   ...(publishNow
+    //     ? { publishNow: true }
+    //     : { scheduledFor: scheduledAt.toISOString(), timezone: timezone || "UTC" }),
+    // };
+
     const body = {
       content,
       platforms,
-      ...(mediaUrl ? { mediaUrls: [mediaUrl] } : {}),
+      ...(mediaUrl
+        ? {
+            mediaItems: [
+              {
+                url: mediaUrl,
+                type: mediaType || "image",
+              },
+            ],
+          }
+        : {}),
       ...(publishNow
         ? { publishNow: true }
-        : { scheduledFor: scheduledAt.toISOString(), timezone: timezone || "UTC" }),
+        : {
+            scheduledFor: scheduledAt.toISOString(),
+            timezone: timezone || "UTC",
+          }),
     };
+    
     const { data, status } = await request("POST", "/posts", body, { requestId });
     const post = data.post || data.existingPost;
     return {

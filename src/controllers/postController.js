@@ -138,6 +138,7 @@ export const createPost = async (req, res, next) => {
       const zernioResult = await zernio.createPost({
         content,
         mediaUrl,
+        mediaType: resolvedMediaType,
         accounts: platforms.map((p) => accountByPlatform.get(p)),
         scheduledAt,
         timezone,
