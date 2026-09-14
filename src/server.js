@@ -28,7 +28,7 @@ for (const key of required) {
 }
 if (process.env.ZERNIO_MODE === "live" && !process.env.ZERNIO_API_KEY) throw new Error("ZERNIO_API_KEY is required when ZERNIO_MODE=live.");
 if (process.env.ZERNIO_MODE === "live" && !process.env.ZERNIO_WEBHOOK_SECRET) throw new Error("ZERNIO_WEBHOOK_SECRET is required when ZERNIO_MODE=live.");
-if (process.env.AI_PROVIDER && process.env.AI_PROVIDER !== "mock" && !process.env.AI_API_KEY) throw new Error("AI_API_KEY is required when AI_PROVIDER is not mock.");
+if (process.env.AI_PROVIDER && process.env.AI_PROVIDER !== "mock" && !process.env.CLOUDFLARE_API_TOKEN) throw new Error("CLOUDFLARE_API_TOKEN is required when AI_PROVIDER is not mock.");
 
 const app = express();
 app.set("trust proxy", 1);
@@ -45,7 +45,6 @@ app.use(compression());
 app.use("/api/webhooks", express.raw({ type: "application/json", limit: "2mb" }), webhookRoutes);
 app.use(express.json({ limit: "10mb" }));
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
-// app.use("/uploads", express.static(path.resolve("uploads"), { maxAge: "1h", fallthrough: false }));
 
 const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false });
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false });
