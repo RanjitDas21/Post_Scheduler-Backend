@@ -42,15 +42,41 @@ const request = async (method, path, body, { requestId, timeoutMs = 20000 } = {}
   }
 
   const data = await response.json().catch(() => ({}));
+  // if (!response.ok) {
+  //   const error = new Error(data?.message || data?.error || `Zernio request failed (${response.status})`);
+  //   error.status = response.status;
+  //   error.code = data?.code || data?.details?.code || null;
+  //   error.details = data?.details;
+  //   error.retryable = response.status === 408 || response.status === 429 || response.status >= 500;
+  //   error.retryAfter = response.headers.get("retry-after") || null;
+  //   throw error;
+  // }
+
   if (!response.ok) {
-    const error = new Error(data?.message || data?.error || `Zernio request failed (${response.status})`);
-    error.status = response.status;
-    error.code = data?.code || data?.details?.code || null;
-    error.details = data?.details;
-    error.retryable = response.status === 408 || response.status === 429 || response.status >= 500;
-    error.retryAfter = response.headers.get("retry-after") || null;
-    throw error;
-  }
+  console.error("========== ZERNIO ERROR ==========");
+  console.error("Status:", response.status);
+  console.error("URL:", `${baseUrl()}${path}`);
+  console.error("Response:", JSON.stringify(data, null, 2));
+  console.error("Request ID:", requestId);
+  console.error("==================================");
+
+  const error = new Error(
+    data?.message ||
+    data?.error ||
+    `Zernio request failed (${response.status})`
+  );
+
+  error.status = response.status;
+  error.code = data?.code || data?.details?.code || null;
+  error.details = data?.details;
+  error.retryable =
+    response.status === 408 ||
+    response.status === 429 ||
+    response.status >= 500;
+  error.retryAfter = response.headers.get("retry-after") || null;
+
+  throw error;
+}
 
   return { data, status: response.status };
 };
@@ -127,6 +153,16 @@ export const createPost = async ({ content, mediaUrl, mediaType, accounts, sched
             timezone: timezone || "UTC",
           }),
     };
+
+
+    console.log("========== ZERNIO CREATE POST ==========");
+    console.log("Base URL:", baseUrl());
+    console.log("Has API Key:", !!process.env.ZERNIO_API_KEY);
+    console.log("API Key Prefix:", process.env.ZERNIO_API_KEY?.slice(0, 7));
+    console.log("Platforms:", JSON.stringify(platforms, null, 2));
+    console.log("Body:", JSON.stringify(body, null, 2));
+    console.log("Request ID:", requestId);
+    console.log("========================================");
     
     const { data, status } = await request("POST", "/posts", body, { requestId });
     const post = data.post || data.existingPost;
